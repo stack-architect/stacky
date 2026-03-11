@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Unified scraper for all documentation sources.
-Usage: python scraper.py [vercel|nextjs|supabase|all] [--test]
+Usage: python scraper.py [vercel|nextjs|supabase|stackarchitect|all] [--test]
 """
 
 import json
@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import List, Dict
 from tempfile import mkdtemp
 from time import sleep
+from bs4 import BeautifulSoup
 
 
 class BaseScraper:
@@ -225,18 +226,121 @@ def scrape_supabase(test: bool = False):
     print(f"✓ Supabase: {len(docs)} documents\n")
 
 
+class StackArchitectScraper(BaseScraper):
+    """Scraper for StackArchitect website."""
+
+    BASE_URL = "https://stackarchitect.io"
+    PAGES = [
+        "/",
+        "/about",
+        "/services",
+        "/contact",
+        "/privacy",
+        "/terms",
+    ]
+
+    def __init__(self, test: bool = False):
+        output_name = "stackarchitect_docs_test.json" if test else "stackarchitect_docs.json"
+        super().__init__(output_name)
+        self.session = requests.Session()
+
+    def extract_main_content(self, html: str) -> str:
+        """Extract main content from HTML, removing nav/footer."""
+        soup = BeautifulSoup(html, 'html.parser')
+
+        # Remove script, style, nav, footer, and other non-content elements
+        for element in soup(['script', 'style', 'nav', 'footer', 'header', 'noscript']):
+            element.decompose()
+
+        # Try to find main content area
+        main_content = soup.find('main')
+        if not main_content:
+            # Fallback to body if no main tag
+            main_content = soup.find('body')
+
+        if main_content:
+            # Get text and clean up whitespace
+            text = main_content.get_text(separator='\n', strip=True)
+            # Remove excessive newlines
+            text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+            # Remove Astro artifacts and other framework symbols
+            text = re.sub(r'Symbol\([^)]+\)', '', text)
+            # Clean up bullet points and special characters
+            text = re.sub(r'â¢', '•', text)
+            text = re.sub(r'â', '—', text)
+            return text.strip()
+
+        return ""
+
+    def fetch_page(self, path: str) -> Dict:
+        """Fetch and parse a single page."""
+        url = f"{self.BASE_URL}{path}"
+        print(f"Fetching {url}")
+
+        try:
+            response = self.session.get(url, timeout=10)
+
+            if response.status_code != 200:
+                print(f"Warning: Failed to fetch {url}: {response.status_code}")
+                return None
+
+            content = self.extract_main_content(response.text)
+
+            # Extract title from HTML
+            soup = BeautifulSoup(response.text, 'html.parser')
+            title_tag = soup.find('title')
+            title = title_tag.get_text() if title_tag else path.strip('/').replace('-', ' ').title()
+
+            # Clean up title (remove site name suffix if present)
+            title = re.sub(r'\s*[|—-]\s*StackArchitect.*$', '', title)
+
+            return {
+                'url': path,
+                'title': title.strip() or 'Home',
+                'content': content,
+                'metadata': {'source': 'stackarchitect'}
+            }
+
+        except Exception as e:
+            print(f"Error fetching {url}: {e}")
+            return None
+
+    def scrape(self, limit: int = None) -> List[Dict]:
+        """Scrape StackArchitect website."""
+        pages = self.PAGES[:limit] if limit else self.PAGES
+
+        docs = []
+        for i, path in enumerate(pages, 1):
+            print(f"[{i}/{len(pages)}] {path}")
+            doc = self.fetch_page(path)
+            if doc and doc['content']:
+                docs.append(doc)
+            sleep(0.5)
+
+        return docs
+
+
+def scrape_stackarchitect(test: bool = False):
+    """Scrape StackArchitect website."""
+    print("=== StackArchitect Website ===\n")
+    scraper = StackArchitectScraper(test=test)
+    docs = scraper.scrape(limit=2 if test else None)
+    scraper.save(docs)
+    print(f"✓ StackArchitect: {len(docs)} documents\n")
+
+
 def main():
     import sys
 
     if len(sys.argv) < 2:
-        print("Usage: python scraper.py [vercel|nextjs|supabase|all] [--test]")
+        print("Usage: python scraper.py [vercel|nextjs|supabase|stackarchitect|all] [--test]")
         sys.exit(1)
 
     target = sys.argv[1]
     test_mode = '--test' in sys.argv
 
     if test_mode:
-        print("TEST MODE: Scraping 5 files from each source\n")
+        print("TEST MODE: Scraping limited pages from each source\n")
 
     if target == 'vercel':
         scrape_vercel(test=test_mode)
@@ -244,14 +348,17 @@ def main():
         scrape_nextjs(test=test_mode)
     elif target == 'supabase':
         scrape_supabase(test=test_mode)
+    elif target == 'stackarchitect':
+        scrape_stackarchitect(test=test_mode)
     elif target == 'all':
         scrape_vercel(test=test_mode)
         scrape_nextjs(test=test_mode)
         scrape_supabase(test=test_mode)
+        scrape_stackarchitect(test=test_mode)
         print("✓ All documentation scraped successfully")
     else:
         print(f"Unknown target: {target}")
-        print("Use: vercel, nextjs, supabase, or all")
+        print("Use: vercel, nextjs, supabase, stackarchitect, or all")
         sys.exit(1)
 
 

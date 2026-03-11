@@ -60,18 +60,26 @@ python3 scripts/chunk_documents.py
 # 5. Generate embeddings and load to database
 python3 scripts/generate_embeddings.py
 
-# 6. Serve Edge Function
-supabase functions serve ask --env-file supabase/.env.local
+# 6. Serve Edge Functions
+supabase functions serve advice,business --env-file supabase/.env.local
 ```
 
 ### Testing
 
-Ask a question about the documentation:
+**Stack Advisor** - Get technical/architectural advice:
 ```bash
-curl -X POST http://localhost:54321/functions/v1/ask \
+curl -X POST http://localhost:54321/functions/v1/advice \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_ANON_KEY" \
-  -d '{"query": "How do I deploy to Vercel?"}'
+  -d '{"query": "How should I structure authentication in Next.js with Supabase?"}'
+```
+
+**Business Assistant** - Ask about StackArchitect:
+```bash
+curl -X POST http://localhost:54321/functions/v1/business \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_ANON_KEY" \
+  -d '{"query": "What services does StackArchitect offer?"}'
 ```
 
 ### Environment Variables

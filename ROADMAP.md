@@ -21,13 +21,17 @@
 - Added embedding_metadata table to track model versions
 
 ## Phase 3: Backend API ✅
-- Supabase Edge Function for RAG endpoint (/ask)
+- Dual-function Supabase Edge Functions:
+  - `/advice` - Stack Advisor for technical/architectural guidance
+  - `/business` - StackArchitect business chatbot for company inquiries
 - Supabase AI inference for embeddings (gte-small model)
 - OpenRouter LLM integration (openrouter/free - rotates between free models)
+- Source filtering for targeted retrieval (stackarchitect vs dev docs)
 - Cosine similarity search via pgvector with source attribution
   - Cosine similarity: Measures angle between vectors (0-1 scale)
   - pgvector operator: `<=>` for cosine distance, `1 - distance = similarity`
 - Config validation to prevent model mismatches
+- Shared utilities library for code reuse
 
 ## Phase 4: Frontend ⏳
 - React question-answering interface (Vite build)

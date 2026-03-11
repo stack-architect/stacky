@@ -1,0 +1,71 @@
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+import {
+  corsHeaders,
+  generateEmbedding,
+  searchDocuments,
+  generateAnswer,
+  getSupabaseClient,
+  getOpenRouterKey,
+} from "../_shared/lib.ts";
+
+const BUSINESS_PROMPT = `You are a helpful assistant for StackArchitect, a cloud architecture consulting firm. Answer questions about the company's services, team, pricing, process, and expertise based on the provided information.
+
+Be professional, friendly, and helpful. If the information doesn't contain what's needed to fully answer the question, politely suggest contacting the team directly at contact@stackarchitect.io or calling +1 (424) 999-5344.`;
+
+Deno.serve(async (req) => {
+  // Handle CORS
+  if (req.method === "OPTIONS") {
+    return new Response("ok", { headers: corsHeaders });
+  }
+
+  try {
+    const { query } = await req.json();
+
+    if (!query) {
+      return new Response(
+        JSON.stringify({ error: "Query is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    console.log("Business query:", query);
+
+    const supabase = getSupabaseClient();
+    const openrouterKey = getOpenRouterKey();
+
+    // Generate embedding
+    console.log("Generating embedding...");
+    const embedding = await generateEmbedding(query);
+
+    // Search StackArchitect documents only
+    console.log("Searching StackArchitect content...");
+    const documents = await searchDocuments(supabase, embedding, 5, 'stackarchitect');
+    console.log("Found documents:", documents.length);
+
+    // Generate answer with business prompt
+    console.log("Generating answer...");
+    const answer = await generateAnswer(query, documents, BUSINESS_PROMPT, openrouterKey);
+
+    const response = {
+      answer,
+      sources: documents.map((doc: any) => ({
+        title: doc.title,
+        url: doc.url,
+        source: doc.source,
+        similarity: doc.similarity,
+      })),
+    };
+
+    return new Response(
+      JSON.stringify(response),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
+  } catch (error) {
+    console.error("Error:", error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});

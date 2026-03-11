@@ -91,12 +91,14 @@ def process_documents(input_file: Path, source: str) -> List[Dict]:
         # Next.js/Supabase: use 'path'
         url = doc.get('full_url') or doc.get('url') or doc.get('path', '')
 
-        # Construct full URL for Next.js/Supabase if needed
+        # Construct full URL for Next.js/Supabase/StackArchitect if needed
         if url and not url.startswith('http'):
             if source == 'nextjs':
                 url = f'https://nextjs.org/docs{url}'
             elif source == 'supabase':
                 url = f'https://supabase.com/docs{url}'
+            elif source == 'stackarchitect':
+                url = f'https://stackarchitect.io{url}'
 
         for i, chunk in enumerate(chunks):
             chunked_docs.append({
@@ -121,7 +123,8 @@ def main():
     for source_file, source_name in [
         ('vercel_docs.json', 'vercel'),
         ('nextjs_docs.json', 'nextjs'),
-        ('supabase_docs.json', 'supabase')
+        ('supabase_docs.json', 'supabase'),
+        ('stackarchitect_docs.json', 'stackarchitect')
     ]:
         file_path = data_dir / source_file
         if file_path.exists():
