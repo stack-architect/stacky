@@ -6,6 +6,8 @@ LEARNING.md
 .env
 .env.local
 .env.*.local
+.env.prod
+.env.*
 
 # Dependencies
 node_modules/

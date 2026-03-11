@@ -1,14 +1,26 @@
 # Stacky
 
-AI-powered search for Next.js, Vercel, and Supabase documentation.
+AI-powered assistant for [stackarchitect.io](https://stackarchitect.io) - a cloud architecture consulting company. Provides both technical stack guidance and business information through dual RAG-powered edge functions.
+
+**2,096 pages** of documentation indexed into **8,145 semantic chunks** for <$1/month.
+
+<p align="center">
+  <img src="assets/stacky.png" alt="Stacky" width="200">
+</p>
+
+## Features
+
+**Stack Advisor** (`/advice`) - Technical architectural guidance for Next.js, Vercel, and Supabase development.
+
+**Business Assistant** (`/business`) - Information about StackArchitect's consulting services, expertise, and offerings.
 
 ## Stack
 
 - Embeddings: Supabase AI (gte-small, 384 dimensions)
 - Vector DB: Supabase pgvector with HNSW indexing
 - LLM: OpenRouter API (openrouter/free)
-- Backend: Supabase Edge Functions (Deno/TypeScript)
-- Frontend: React (planned)
+- Backend: Dual Supabase Edge Functions (Deno/TypeScript)
+- Frontend: Integrated with stackarchitect.io (Astro)
 - Deploy: stacky.stackarchitect.io
 
 ## Key Decisions
@@ -19,7 +31,7 @@ AI-powered search for Next.js, Vercel, and Supabase documentation.
 
 **Config validation** - Added config.json and embedding_metadata table to prevent model mismatches between embedding generation and query-time.
 
-**Comprehensive corpus** - 8,145 chunks from ~2,100 pages across three documentation sources.
+**Comprehensive corpus** - 8,145 chunks from 2,096 pages (931 Vercel, 383 Next.js, 782 Supabase) plus StackArchitect business content, source-filtered per edge function.
 
 **HNSW indexing** - Fast approximate nearest neighbor search optimized for <10k document chunks.
 
@@ -51,7 +63,7 @@ pip install -r requirements.txt
 # 2. Start Supabase locally
 supabase start
 
-# 3. Scrape documentation (~2,100 pages, takes ~15 min)
+# 3. Scrape documentation (technical docs + StackArchitect content)
 python3 scrapers/scraper.py all
 
 # 4. Chunk documents

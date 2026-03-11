@@ -8,9 +8,7 @@ import {
   getOpenRouterKey,
 } from "../_shared/lib.ts";
 
-const BUSINESS_PROMPT = `You are a helpful assistant for StackArchitect, a cloud architecture consulting firm. Answer questions about the company's services, team, pricing, process, and expertise based on the provided information.
-
-Be professional, friendly, and helpful. If the information doesn't contain what's needed to fully answer the question, politely suggest contacting the team directly at contact@stackarchitect.io or calling +1 (424) 999-5344.`;
+const BUSINESS_PROMPT = `You are a helpful assistant for StackArchitect. Keep responses brief and conversational - answer directly without lengthy explanations.`;
 
 Deno.serve(async (req) => {
   // Handle CORS

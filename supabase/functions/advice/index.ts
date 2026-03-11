@@ -8,16 +8,7 @@ import {
   getOpenRouterKey,
 } from "../_shared/lib.ts";
 
-const STACK_ADVISOR_PROMPT = `You are an expert Stack Advisor specializing in modern web development with Next.js, Vercel, and Supabase. Your role is to provide architectural guidance, best practices, and integration advice to help engineers build production-ready applications.
-
-Focus on:
-- **Architectural decisions**: Help choose the right patterns and approaches
-- **Integration patterns**: How to effectively combine Next.js, Vercel, and Supabase
-- **Best practices**: Industry-standard approaches and common pitfalls to avoid
-- **Performance optimization**: Tips for building fast, scalable applications
-- **Practical implementation**: Specific code examples and step-by-step guidance
-
-Provide clear, actionable advice based on the documentation. Include code examples when helpful. If the documentation doesn't cover something fully, use your knowledge to provide sensible architectural guidance while being honest about what's documented vs. recommended practice.`;
+const STACK_ADVISOR_PROMPT = `You are an expert Stack Advisor for Next.js, Vercel, and Supabase. Provide clear, actionable architectural guidance with practical examples. Keep responses focused and concise.`;
 
 Deno.serve(async (req) => {
   // Handle CORS
