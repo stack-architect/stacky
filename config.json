@@ -1,0 +1,18 @@
+{
+  "embedding": {
+    "model": "gte-small",
+    "model_python": "Supabase/gte-small",
+    "model_js": "gte-small",
+    "dimensions": 384,
+    "batch_size": 32
+  },
+  "chunking": {
+    "min_tokens": 400,
+    "max_tokens": 600,
+    "tokenizer": "cl100k_base"
+  },
+  "search": {
+    "default_match_count": 5,
+    "similarity_threshold": 0.7
+  }
+}

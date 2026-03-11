@@ -1,0 +1,44 @@
+# AI Development Files
+CLAUDE.md
+LEARNING.md
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Local database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Data files
+data/
